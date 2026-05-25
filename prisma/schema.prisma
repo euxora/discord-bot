@@ -1,0 +1,83 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Guild {
+  id        String   @id               // Discord guild snowflake
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  prefix    String   @default("!")
+  locale    String   @default("en-US")
+
+  members   Member[]
+  cases     Case[]
+
+  @@map("guilds")
+}
+
+model User {
+  id        String   @id               // Discord user snowflake
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  members   Member[]
+
+  @@map("users")
+}
+
+model Member {
+  id        String   @id @default(cuid())
+  guildId   String
+  userId    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  xp        Int      @default(0)
+  level     Int      @default(0)
+  balance   Int      @default(0)
+
+  guild     Guild    @relation(fields: [guildId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  cases     Case[]   @relation("TargetCases")
+  modCases  Case[]   @relation("ModeratorCases")
+
+  @@unique([guildId, userId])
+  @@map("members")
+}
+
+model Case {
+  id          Int      @id @default(autoincrement())
+  guildId     String
+  targetId    String
+  moderatorId String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  type        CaseType
+  reason      String?
+  duration    Int?     // segundos, para mutes/bans temporales
+  active      Boolean  @default(true)
+
+  guild       Guild    @relation(fields: [guildId], references: [id], onDelete: Cascade)
+  target      Member   @relation("TargetCases", fields: [targetId], references: [id])
+  moderator   Member   @relation("ModeratorCases", fields: [moderatorId], references: [id])
+
+  @@map("cases")
+}
+
+enum CaseType {
+  WARN
+  MUTE
+  KICK
+  BAN
+  UNBAN
+  UNMUTE
+
+  @@map("case_type")
+}
