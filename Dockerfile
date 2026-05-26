@@ -1,21 +1,12 @@
-FROM node:22-alpine AS base
+FROM node:22-alpine
 RUN corepack enable && corepack prepare pnpm@latest --activate
 WORKDIR /app
 
-FROM base AS deps
 COPY package.json pnpm-lock.yaml ./
 RUN pnpm install --frozen-lockfile
 
-FROM base AS builder
-COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-RUN pnpm db:generate && pnpm build
+RUN pnpm db:generate
 
-FROM base AS runner
 ENV NODE_ENV=production
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/prisma ./prisma
-COPY --from=builder /app/languages ./languages
-COPY --from=builder /app/package.json ./package.json
-CMD ["node", "--enable-source-maps", "dist/index.js"]
+CMD ["node", "--import", "tsx/esm", "src/index.ts"]
