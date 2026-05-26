@@ -5,7 +5,7 @@ import '@sapphire/plugin-scheduled-tasks/register';
 import '@sapphire/plugin-api/register';
 import '@sapphire/plugin-logger/register';
 import '@sapphire/plugin-i18next/register';
-import { GatewayIntentBits, Partials, ActivityType } from 'discord.js';
+import { GatewayIntentBits, Partials } from 'discord.js';
 import { config } from '#config';
 import { getCachedPrefix } from '#lib/cache/guild.cache';
 import { prisma } from '#prisma';
@@ -29,7 +29,7 @@ export class EuxoraClient extends SapphireClient {
       ],
       partials: [Partials.GuildMember],
       presence: {
-        activities: [{ name: 'the server', type: ActivityType.Watching }],
+        status: 'dnd',
       },
       loadMessageCommandListeners: true,
       defaultPrefix: 'e!',
