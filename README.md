@@ -1,15 +1,15 @@
 # Euxora Discord Bot
 
-Bot de Discord para la organizacion Euxora, construido con TypeScript, Sapphire, Prisma, Postgres y Redis.
+A Discord bot for the Euxora organization, built with TypeScript, Sapphire, Prisma, Postgres, and Redis.
 
-## Requisitos
+## Requirements
 
 - Node.js 22+
 - pnpm 10+
 - Docker + Docker Compose
-- Archivo `.env` configurado
+- A configured `.env` file
 
-## Levantar el bot (Docker, recomendado)
+## Run the bot (Docker, recommended)
 
 ```bash
 docker compose up -d --build
@@ -17,12 +17,12 @@ docker compose ps
 docker compose logs -f bot
 ```
 
-Esto levanta:
+This starts:
 - `postgres`
 - `redis`
 - `bot`
 
-## Levantar el bot (local)
+## Run the bot (local)
 
 ```bash
 pnpm install
@@ -31,7 +31,7 @@ pnpm db:migrate
 pnpm dev
 ```
 
-## Comandos utiles
+## Useful commands
 
 ```bash
 pnpm lint
@@ -39,6 +39,6 @@ pnpm typecheck
 pnpm build
 ```
 
-## Licencia
+## License
 
-MIT - ver `LICENSE`.
+MIT - see `LICENSE`.
