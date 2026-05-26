@@ -1,6 +1,25 @@
+# Dependencies
 node_modules/
+
+# Build output
 dist/
+*.tsbuildinfo
+
+# Environment
 .env
 .env.local
-*.tsbuildinfo
-prisma/migrations/*.sql
+
+# Logs
+pnpm-debug.log*
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Claude
+CLAUDE.md

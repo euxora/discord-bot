@@ -1,10 +1,13 @@
-import { SapphireClient, container } from '@sapphire/framework';
+import { SapphireClient, container, ApplicationCommandRegistries, RegisterBehavior } from '@sapphire/framework';
+import { fileURLToPath } from 'url';
+import { resolve, dirname } from 'path';
 import '@sapphire/plugin-scheduled-tasks/register';
 import '@sapphire/plugin-api/register';
 import '@sapphire/plugin-logger/register';
 import '@sapphire/plugin-i18next/register';
 import { GatewayIntentBits, Partials, ActivityType } from 'discord.js';
 import { config } from '#config';
+import { getCachedPrefix } from '#lib/cache/guild.cache';
 import { prisma } from '#prisma';
 import { redis } from '#redis';
 import { moderationQueue, createModerationWorker } from '#queues/index';
@@ -14,7 +17,9 @@ export class EuxoraClient extends SapphireClient {
   private workers: Worker[] = [];
 
   public constructor() {
+    ApplicationCommandRegistries.setDefaultBehaviorWhenNotIdentical(RegisterBehavior.BulkOverwrite);
     super({
+      baseUserDirectory: new URL('../', import.meta.url),
       intents: [
         GatewayIntentBits.Guilds,
         GatewayIntentBits.GuildMembers,
@@ -27,6 +32,11 @@ export class EuxoraClient extends SapphireClient {
         activities: [{ name: 'the server', type: ActivityType.Watching }],
       },
       loadMessageCommandListeners: true,
+      defaultPrefix: 'e!',
+      fetchPrefix: async (message) => {
+        if (!message.guildId) return 'e!';
+        return getCachedPrefix(redis, prisma, message.guildId);
+      },
       tasks: {
         bull: { connection: redis },
       },
@@ -40,6 +50,7 @@ export class EuxoraClient extends SapphireClient {
         },
       },
       i18n: {
+        defaultLanguageDirectory: resolve(dirname(fileURLToPath(import.meta.url)), '../../languages'),
         fetchLanguage: async (context) => {
           if (!context.guild) return 'en-US';
           const guild = await prisma.guild.findUnique({
@@ -50,7 +61,7 @@ export class EuxoraClient extends SapphireClient {
         },
       },
       logger: {
-        level: config.NODE_ENV === 'development' ? 10 : 20,
+        level: 30,
       },
     });
   }
@@ -68,7 +79,7 @@ export class EuxoraClient extends SapphireClient {
       }),
     );
 
-    await redis.connect();
+    if (redis.status === 'wait') await redis.connect();
     return super.login(token);
   }
 

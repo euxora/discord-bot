@@ -2,8 +2,7 @@ import { prisma } from '#prisma';
 
 async function main(): Promise<void> {
   console.log('Seeding database...');
-  // Add seed data here
-  console.log('Done.');
+console.log('Done.');
 }
 
 main()
