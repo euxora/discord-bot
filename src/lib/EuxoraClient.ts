@@ -67,6 +67,9 @@ export class EuxoraClient extends SapphireClient {
   }
 
   public override async login(token?: string): Promise<string> {
+    for (const store of this.stores.values()) {
+      store.strategy.supportedExtensions.push('.ts');
+    }
     container.prisma = prisma;
     container.redis = redis;
     container.queues = { moderation: moderationQueue };
